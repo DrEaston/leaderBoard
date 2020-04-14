@@ -13,6 +13,8 @@ import bisect
 
 chemQuizzes=['The Number of Neutrons (CO Pages 4-6)','Valence Electrons / Energy Levels (CO Pages 8-11)','Dot Diagrams and Charge (CO Pages 13-16)','Chemical Formulas (CO Page 18)','Ionic and Covalent Bonding (CO Pages 20-24)','Reactions1 Quiz','Reactions2 Quiz','Elephant Toothpaste Quiz','Protons Neutrons Electrons (CO Page 2)']
 astrQuizzes=['1 - The Fusing of Elements Quiz','2 - Solar Nuclear Fusion Quiz','Electrons and Light Quiz','Where does light come from? - Quiz','The color of light - Quiz','Light and Scorpions - Quiz']
+earthQuizzes=["Earth's Spheres Quiz","Rainbows and Infrared Light","Earth's Atmosphere Quiz"]
+categories=['score','astronomy','chemistry','noQuizzes','earthSci','hundos'] 
 
 class Student:
     def __init__(self,ID,firstName,lastName):
@@ -24,8 +26,9 @@ class Student:
         self.nickName =[]
         self.astronomy = 0
         self.chemistry = 0
-        self.numHundos = 0
-        self.quizzesTaken = 0
+        self.hundos = 0
+        self.noQuizzes = 0
+        self.earthSci = 0
 
 class scoreSheet:
     def __init__(self,filename):
@@ -33,21 +36,24 @@ class scoreSheet:
         self.studentIDs=[]
         self.studentNames=[]
         self.studentList=[]
-        self.quizIDs=[]
-        self.quizList=[]
         self.idsWithNickNames=[]
         self.chosenNames=[]
-        self.numHundos = []
-        self.nameHundos = []
-        self.score = []
-        self.highScorers =[]
-        self.toPrint = []
-        self.astronomy=[]
-        self.astronomers=[]
-        self.chemistry=[]
-        self.chemists=[]
-        self.quizzesTaken=[]
-        self.quizTakers=[]
+        self.toPrint = [] 
+        #lists containing sorted scores, players
+        self.hundos = [[],[]]
+        self.score = [[],[]]
+        self.astronomy=[[],[]]
+        self.chemistry=[[],[]]
+        self.noQuizzes=[[],[]]
+        self.earthSci=[[],[]]
+        
+        self.hundosWeek = [[],[]]
+        self.scoreWeek = [[],[]]
+        self.astronomyWeek=[[],[]]
+        self.chemistryWeek=[[],[]]
+        self.noQuizzesWeek=[[],[]]
+        self.earthSciWeek=[[],[]]
+
 
         #import data
         with  open(filename, 'r') as fin:
@@ -77,16 +83,18 @@ class scoreSheet:
              
     def addScore(self,idx,quizScore,quizName): #called by __init__ methods above   
         if (quizScore != ''): #if there is a quiz score
-            self.studentList[idx].quizzesTaken += 1
+            self.studentList[idx].noQuizzes += 1 #increment number of quizzes taken
             self.studentList[idx].quizzes.append(float(quizScore)) #add score to list
-            self.studentList[idx].quizNames.append(quizName)
+            self.studentList[idx].quizNames.append(quizName) #add name of quiz to list
             self.studentList[idx].score+=float(quizScore) #update total score
             if quizName in chemQuizzes:
                 self.studentList[idx].chemistry += float(quizScore)
             if quizName in astrQuizzes:
                 self.studentList[idx].astronomy += float(quizScore)
+            if quizName in earthQuizzes:
+                self.studentList[idx].earthSci += float(quizScore)
             if quizScore == '100':
-                self.studentList[idx].numHundos += 1
+                self.studentList[idx].hundos += 1
             
     """ user tools """
     def getStudent(self,firstname): #enter student firstname
@@ -100,12 +108,30 @@ class scoreSheet:
                     break
 
     """ calculate stuff """  
-    def getLeaders(self,stats,statLeaders): # create list of leaders for attributes in input variables
+    def getLeaders(self,category): # create list of leaders for attributes in input variables
         for item in self.studentList:
-            if (getattr(item,stats)>0):
-                self.insertScorePlayer(item,getattr(item,stats),item.ID,getattr(self,stats),getattr(self,statLeaders))
-        return [getattr(self,statLeaders),getattr(self,stats)]
-               
+            if (getattr(item,category)>0):
+                self.insertScorePlayer(item,getattr(item,category),item.ID,getattr(self,category)[0],getattr(self,category)[1])
+        return [getattr(self,category)[0],getattr(self,category)[1]]
+    
+    def getWeeklyLeaders(self,category):
+        current=getattr(intSci,category)
+        last=getattr(lastWeek,category)
+        leaders=[[],[]]
+        for item in current[1]:
+            idx=current[1].index(item)
+            if item in last[1]:
+                idx1=last[1].index(item)
+                score=current[0][idx]-last[0][idx1]
+            else:
+                score=current[0][idx]
+            i=bisect.bisect_right(leaders[0],score)
+            leaders[0].insert(i,score)
+            leaders[1].insert(i,item)
+        getattr(self,(category+"Week"))[0]=leaders[0]
+        getattr(self,(category+"Week"))[1]=leaders[1]
+           
+                
     """ used by getLeaders """    #insert username/score into ordered list of leaders
     def insertScorePlayer (self,student,score,player,scoreList,playerList):
         i=bisect.bisect_right(scoreList,float(score))
@@ -115,16 +141,17 @@ class scoreSheet:
         playerList.insert(i,ID) 
         
     """ print stuff """           
-    def printLeaders(self,namesScores,numScores): #print leaderboard. "namesScores" is generated by "getLeaders"
-        if numScores=='all':  #numScores indicates how many scores to print. 'all' prints all leaders (those with scores)
-            numScores=len(namesScores[1])
-        for x in range(1,numScores+1):
-            str1=namesScores[0][-x]
-            str_length=len(str1)+(13-len(namesScores[0][-x]))
-            str1=str1.ljust(str_length)
-            print(str1 + "  -  " + str(int(namesScores[1][-x])))
-        print("\n")
-                
+    def printLeaders(self,category,numScores): #print leaderboard. "namesScores" is generated by "getLeaders" 
+            if len(getattr(self,category)[0])>0:
+                if numScores=='all':  #numScores indicates how many scores to print. 'all' prints all leaders (those with scores)
+                    numScores=len(getattr(self,category)[0])
+                for x in range(1,numScores+1):
+                    str1=getattr(self,category)[1][-x]
+                    str_length=len(str1)+(13-len(getattr(self,category)[1][-x]))
+                    str1=str1.ljust(str_length)
+                    print(str1 + "  -  " + str(int(getattr(self,category)[0][-x])))
+                print("\n")
+                    
     """ Nickname import/insert/edit/save """
     def importNicknames(self): #read in nicknames from file
         with  open('nickNamesList.txt', 'r') as fin:
@@ -164,22 +191,60 @@ class scoreSheet:
                 fout.write(writeStr)
                 fout.write('\n')
 
+
+
 # Import Data and Load into Course object     
-intSci=scoreSheet('April6.csv')
-intSci.importNicknames()
+intSci=scoreSheet('April14.csv')
+intSci.importNicknames() 
+lastWeek=scoreSheet('April6.csv')
+lastWeek.importNicknames()  
+   
+for item in categories:
+    intSci.getLeaders(item)
+    lastWeek.getLeaders(item)
+    intSci.getWeeklyLeaders(item)
 
 """ Program Output """ 
 print("The total points leaders are:")
-intSci.printLeaders(intSci.getLeaders('score','highScorers'),10)
+intSci.printLeaders('score',10)
 
 print("The leaders for most Hundos (100% quizzes) are:")
-intSci.printLeaders(intSci.getLeaders('numHundos','nameHundos'),10)
+intSci.printLeaders('hundos',10)
 
 print("The Chemistry points leaders are:")
-intSci.printLeaders(intSci.getLeaders('chemistry','chemists'),10)
+intSci.printLeaders('chemistry',10)
 
 print("The Astronomy points leaders are:")
-intSci.printLeaders(intSci.getLeaders('astronomy','astronomers'),10)
+intSci.printLeaders('astronomy',10)
 
 print("Quiz warriors (Those with most quiz attempts) :")
-intSci.printLeaders(intSci.getLeaders('quizzesTaken','quizTakers'),10)
+intSci.printLeaders('noQuizzes',10)
+
+print("The leading earth scientists are:")
+intSci.printLeaders('earthSci',10)
+
+
+
+print("Weekly Leaders: ")
+
+print("The total points leaders are:")
+intSci.printLeaders('scoreWeek',10)
+
+print("The leaders for most Hundos (100% quizzes) are:")
+intSci.printLeaders('hundosWeek',10)
+
+print("The Chemistry points leaders are:")
+intSci.printLeaders('chemistryWeek',10)
+
+print("The Astronomy points leaders are:")
+intSci.printLeaders('astronomyWeek',10)
+
+print("Quiz warriors (Those with most quiz attempts) :")
+intSci.printLeaders('noQuizzesWeek',10)
+
+print("The leading earth scientists are:")
+intSci.printLeaders('earthSciWeek',10)
+
+
+
+
