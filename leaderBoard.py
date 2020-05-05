@@ -13,7 +13,7 @@ import bisect
 
 chemQuizzes=['The Number of Neutrons (CO Pages 4-6)','Valence Electrons / Energy Levels (CO Pages 8-11)','Dot Diagrams and Charge (CO Pages 13-16)','Chemical Formulas (CO Page 18)','Ionic and Covalent Bonding (CO Pages 20-24)','Reactions1 Quiz','Reactions2 Quiz','Elephant Toothpaste Quiz','Protons Neutrons Electrons (CO Page 2)']
 astrQuizzes=['1 - The Fusing of Elements Quiz','2 - Solar Nuclear Fusion Quiz','Electrons and Light Quiz','Where does light come from? - Quiz','The color of light - Quiz','Light and Scorpions - Quiz']
-earthQuizzes=["Convection Quiz","Earth's Crust Quiz","Earth's Mantle and Core Quiz","Earth's Spheres Quiz","Rainbows and Infrared Light","Earth's Atmosphere Quiz","Weather or Climate? - Videos - Quiz","Weather and Climate Reading Quiz","Wind and Solar Radiation Quiz"]
+earthQuizzes=["Plate Tectonics 1 - Quiz","Plate Tectonics 2 - Quiz","Plate Tectonics 3 - Quiz","Convection Quiz","Earth's Crust Quiz","Earth's Mantle and Core Quiz","Earth's Spheres Quiz","Rainbows and Infrared Light","Earth's Atmosphere Quiz","Weather or Climate? - Videos - Quiz","Weather and Climate Reading Quiz","Wind and Solar Radiation Quiz"]
 quantQuizzes=['Valence Electrons / Energy Levels (CO Pages 8-11)','Protons Neutrons Electrons (CO Page 2)','Electrons and Light Quiz','Where does light come from? - Quiz','The color of light - Quiz','Light and Scorpions - Quiz','Rainbows and Infrared Light','Invisible Sunlight Quiz']
 categories=['score','astronomy','chemistry','noQuizzes','earthSci','hundos','quantPhys'] 
 
@@ -196,9 +196,9 @@ class scoreSheet:
 
 
 # Import Data and Load into Course object     
-intSci=scoreSheet('April28.csv')
+intSci=scoreSheet('May4.csv')
 intSci.importNicknames() 
-lastWeek=scoreSheet('April20.csv')
+lastWeek=scoreSheet('April28.csv')
 lastWeek.importNicknames()  
    
 for item in categories:
